@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-from copy import copy
 import time
-import threading
-import sys
+from typing import List
 
 import pytest
 import rclpy
@@ -10,9 +8,14 @@ from rclpy.node import Node
 import rclpy.logging
 
 from roboclaw_msgs.msg import SpeedCommand, Stats
+from roboclaw_driver.roboclaw_node import RoboclawNode
 
 DEFAULT_STATS_TOPIC = "stats"
 DEFAULT_CMD_TOPIC = "speed_command"
+
+PARAM_DEV_NAMES = 'dev_names'
+PARAM_BAUD_RATE = 'baud_rate'
+PARAM_ADDRESS = 'address'
 
 
 class NodeTestingNode(Node):
@@ -20,7 +23,6 @@ class NodeTestingNode(Node):
         super().__init__('node_tester')
 
         self.stats = Stats()
-        self.lock = threading.Lock()
 
         self.speed_pub = self.create_publisher(
             msg_type=SpeedCommand,
@@ -36,34 +38,37 @@ class NodeTestingNode(Node):
         )
 
     def _stats_callback(self, cmd):
-        with self.lock:
-            self.stats = cmd
-
-    def get_stats(self):
-        stats_copy = None
-        with self.lock:
-            stats_copy = copy(self.stats)
-        return stats_copy
+        self.stats = cmd
 
 
-@ pytest.fixture
-def test_node():
-    rclpy.init(args=sys.argv)
-    testnode = NodeTestingNode()
-    testnode.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
-
-    _spin_sleep(testnode, 1)  # Let subscribers connect
-    yield testnode
-
+@pytest.fixture
+def ros_context():
+    rclpy.init()
+    yield
     rclpy.shutdown()
 
 
-def test_forward_normal(test_node: NodeTestingNode):
-    _spin_sleep(test_node, 1)     # Process stats subscriber messages
-    stats = test_node.get_stats()
+@ pytest.fixture
+def test_node(ros_context):
+    node = NodeTestingNode()
+    node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+    return node
 
-    start_m1_dist = stats.m1_enc_val
-    start_m2_dist = stats.m2_enc_val
+
+@ pytest.fixture
+def roboclaw_node(ros_context):
+    node = RoboclawNode()
+    node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
+    node.connect(dev_name='/dev/ttyACM0', baud_rate=115200, address=0x80, test_mode=True)
+    return node
+
+
+def test_forward_normal(test_node: NodeTestingNode, roboclaw_node: RoboclawNode):
+    nodes = [test_node, roboclaw_node]
+    _spin_for_secs(nodes, 1)     # Process stats subscriber messages
+
+    start_m1_dist = test_node.stats.m1_enc_val
+    start_m2_dist = test_node.stats.m2_enc_val
 
     m1_qpps, m2_qpps = 1000, 1000
     max_secs = 2
@@ -73,11 +78,10 @@ def test_forward_normal(test_node: NodeTestingNode):
     cmd = _create_speed_command(m1_qpps, m2_qpps, max_secs)
     test_node.speed_pub.publish(cmd)
 
-    _spin_sleep(test_node, 3)
-    stats = test_node.get_stats()
+    _spin_for_secs(nodes, 3)
 
     _check_stats(
-        stats,
+        test_node.stats,
         0, 0, qpps_delta,
         start_m1_dist + (m1_qpps * max_secs),
         start_m2_dist + (m2_qpps * max_secs),
@@ -85,12 +89,12 @@ def test_forward_normal(test_node: NodeTestingNode):
     )
 
 
-def test_reverse_normal(test_node: NodeTestingNode):
-    _spin_sleep(test_node, 1)     # Process stats subscriber messages
-    stats = test_node.get_stats()
+def test_reverse_normal(test_node: NodeTestingNode, roboclaw_node: RoboclawNode):
+    nodes = [test_node, roboclaw_node]
+    _spin_for_secs(nodes, 1)     # Process stats subscriber messages
 
-    start_m1_dist = stats.m1_enc_val
-    start_m2_dist = stats.m2_enc_val
+    start_m1_dist = test_node.stats.m1_enc_val
+    start_m2_dist = test_node.stats.m2_enc_val
 
     m1_qpps, m2_qpps = -2000, -2000
     max_secs = 2
@@ -100,11 +104,10 @@ def test_reverse_normal(test_node: NodeTestingNode):
     cmd = _create_speed_command(m1_qpps, m2_qpps, max_secs)
     test_node.speed_pub.publish(cmd)
 
-    _spin_sleep(test_node, 3)
-    stats = test_node.get_stats()
+    _spin_for_secs(nodes, 3)
 
     _check_stats(
-        stats,
+        test_node.stats,
         0, 0, qpps_delta,
         start_m1_dist + (m1_qpps * max_secs),
         start_m2_dist + (m2_qpps * max_secs),
@@ -112,12 +115,12 @@ def test_reverse_normal(test_node: NodeTestingNode):
     )
 
 
-def test_left_normal(test_node: NodeTestingNode):
-    _spin_sleep(test_node, 1)     # Process stats subscriber messages
-    stats = test_node.get_stats()
+def test_left_normal(test_node: NodeTestingNode, roboclaw_node: RoboclawNode):
+    nodes = [test_node, roboclaw_node]
+    _spin_for_secs(nodes, 1)     # Process stats subscriber messages
 
-    start_m1_dist = stats.m1_enc_val
-    start_m2_dist = stats.m2_enc_val
+    start_m1_dist = test_node.stats.m1_enc_val
+    start_m2_dist = test_node.stats.m2_enc_val
 
     m1_qpps, m2_qpps = 1000, -1000
     max_secs = 2
@@ -127,11 +130,10 @@ def test_left_normal(test_node: NodeTestingNode):
     cmd = _create_speed_command(m1_qpps, m2_qpps, max_secs)
     test_node.speed_pub.publish(cmd)
 
-    _spin_sleep(test_node, 3)
-    stats = test_node.get_stats()
+    _spin_for_secs(nodes, 3)
 
     _check_stats(
-        stats,
+        test_node.stats,
         0, 0, qpps_delta,
         start_m1_dist + (m1_qpps * max_secs),
         start_m2_dist + (m2_qpps * max_secs),
@@ -139,12 +141,12 @@ def test_left_normal(test_node: NodeTestingNode):
     )
 
 
-def test_right_normal(test_node: NodeTestingNode):
-    _spin_sleep(test_node, 1)     # Process stats subscriber messages
-    stats = test_node.get_stats()
+def test_right_normal(test_node: NodeTestingNode, roboclaw_node: RoboclawNode):
+    nodes = [test_node, roboclaw_node]
+    _spin_for_secs(nodes, 1)     # Process stats subscriber messages
 
-    start_m1_dist = stats.m1_enc_val
-    start_m2_dist = stats.m2_enc_val
+    start_m1_dist = test_node.stats.m1_enc_val
+    start_m2_dist = test_node.stats.m2_enc_val
 
     m1_qpps, m2_qpps = -1000, 1000
     max_secs = 2
@@ -154,11 +156,10 @@ def test_right_normal(test_node: NodeTestingNode):
     cmd = _create_speed_command(m1_qpps, m2_qpps, max_secs)
     test_node.speed_pub.publish(cmd)
 
-    _spin_sleep(test_node, 3)
-    stats = test_node.get_stats()
+    _spin_for_secs(nodes, 3)
 
     _check_stats(
-        stats,
+        test_node.stats,
         0, 0, qpps_delta,
         start_m1_dist + (m1_qpps * max_secs),
         start_m2_dist + (m2_qpps * max_secs),
@@ -200,7 +201,8 @@ def _check_stats(
             f"{label} expected/delta: {expected_val}/{delta}, actual: {actual_val}"
 
 
-def _spin_sleep(node: Node, secs: float, timeout_sec: float = 0.1):
+def _spin_for_secs(nodes: List[Node], secs: float, timeout_sec: float = 0.1):
     start_time = time.perf_counter()
     while time.perf_counter() < start_time + secs:
-        rclpy.spin_once(node, timeout_sec=timeout_sec)
+        for node in nodes:
+            rclpy.spin_once(node, timeout_sec=timeout_sec)

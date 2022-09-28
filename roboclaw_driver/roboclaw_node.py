@@ -9,7 +9,6 @@ import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor
 
-# from rclpy.exceptions import ROSInterruptException
 # import diagnostic_msgs
 
 from roboclaw_msgs.msg import SpeedCommand, Stats
@@ -227,7 +226,6 @@ class RoboclawNode(Node):
                         self.get_logger().error("RoboclawControl SpeedAccelDistanceM1M2 failed")
 
 
-# if __name__ == "__main__":
 def main(args=None):
 
     # Setup the ROS node
@@ -261,5 +259,4 @@ def main(args=None):
         node.get_logger().fatal(traceback.format_exc())
 
     # Shutdown and cleanup
-    node.destroy_node()  # Optional, as this will happen automatically during shutdown
     rclpy.shutdown()

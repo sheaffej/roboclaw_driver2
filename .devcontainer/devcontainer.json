@@ -6,6 +6,10 @@
 		"--name", "roboclaw-vscode"
 	],
 
+    "containerEnv": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+    },
+
 	// You can edit these settings after create using File > Preferences > Settings > Remote.
 	"settings": { 
 		"python.pythonPath": "/usr/bin/python3",
