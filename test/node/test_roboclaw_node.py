@@ -7,7 +7,7 @@ import rclpy
 from rclpy.node import Node
 import rclpy.logging
 
-from roboclaw_msgs.msg import SpeedCommand, Stats
+from roboclaw_interfaces.msg import SpeedCommand, Stats
 from roboclaw_driver.roboclaw_node import RoboclawNode
 
 DEFAULT_STATS_TOPIC = "stats"

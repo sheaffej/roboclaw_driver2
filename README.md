@@ -3,7 +3,7 @@
 A ROS2 node providing a driver interface to the Roboclaw motor controller.
 
 ---
-This is the ROS2 version of the previous repo which was build for ROS1 ([sheaffej/roboclaw_driver](https://github.com/sheaffej/roboclaw_driver)).
+This is the ROS2 version of the previous repo which was built for ROS1 ([sheaffej/roboclaw_driver](https://github.com/sheaffej/roboclaw_driver)).
 
 ## Why another ROS Roboclaw driver?
 There are several existing ROS nodes for the roboclaw, including:

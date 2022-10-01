@@ -11,7 +11,7 @@ from rcl_interfaces.msg import ParameterDescriptor
 
 # import diagnostic_msgs
 
-from roboclaw_msgs.msg import SpeedCommand, Stats
+from roboclaw_interfaces.msg import SpeedCommand, Stats
 from roboclaw_driver.roboclaw_control import RoboclawControl
 from roboclaw_driver.roboclaw import Roboclaw
 from roboclaw_driver.roboclaw_stub import RoboclawStub

@@ -1,7 +1,7 @@
 FROM ros:galactic-ros-base
 
 ENV ROS_WS /ros2
-ENV PKG_NAME roboclaw_driver
+ENV PKG_NAME roboclaw_driver2
 ENV COLCON_BUILD_OPTS "--symlink-install"
 ENV PYTEST_ADDOPTS "--color=yes"
 
@@ -29,7 +29,7 @@ RUN ln -s /workspaces/${PKG_NAME} ${ROS_WS}/src/${PKG_NAME}
 
 # Add other source packages
 RUN cd ${ROS_WS}/src \
-&& git clone https://github.com/sheaffej/roboclaw_msgs.git
+&& git clone https://github.com/sheaffej/roboclaw_interfaces.git
 
 # Install dependencies
 RUN cd ${ROS_WS} \
