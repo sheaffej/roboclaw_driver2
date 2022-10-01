@@ -1,8 +1,9 @@
-# `roboclaw_driver`
+# `roboclaw_driver2`
 
-[![Build Status](https://travis-ci.org/sheaffej/roboclaw_driver.svg?branch=master)](https://travis-ci.org/sheaffej/roboclaw_driver) [![Coverage Status](https://coveralls.io/repos/github/sheaffej/roboclaw_driver/badge.svg?branch=HEAD)](https://coveralls.io/github/sheaffej/roboclaw_driver?branch=HEAD)
+A ROS2 node providing a driver interface to the Roboclaw motor controller.
 
-A ROS node providing a driver interface to the Roboclaw motor controller.
+---
+This is the ROS2 version of the previous repo which was build for ROS1 ([sheaffej/roboclaw_driver](https://github.com/sheaffej/roboclaw_driver)).
 
 ## Why another ROS Roboclaw driver?
 There are several existing ROS nodes for the roboclaw, including:
@@ -19,65 +20,69 @@ In my robot, the Odometry and tf frames will be computed and published by the se
 
 ## Parameters
 
-* `~dev_name` - Serial (aka USB) device name
-* `~baud` - Default 115200
-* `~address` - Serial address, default 0x80
-* `~loop_hz` - Number of publisher loops per second (Hertz)
-* `~deadman_secs` - Seconds until motors stop without additional commands
-* `~test_mode` - True = run the Roboclaw simulator stub for testing
-* `~speed_cmd_topic` - Topic on which to listen for SpeedCommand messages
-* `~stats_topic` - Topic on which Stats messages will be published
+* `dev_name` - Serial (aka USB) device name
+* `baud` - Default 115200
+* `address` - Serial address, default 0x80
+* `loop_hz` - Number of publisher loops per second (Hertz)
+* `deadman_secs` - Seconds until motors stop without additional commands
+* `test_mode` - True = run the Roboclaw simulator stub for testing
+* `speed_cmd_topic` - Topic on which to listen for SpeedCommand messages
+* `stats_topic` - Topic on which Stats messages will be published
 
 ## Topics
 
 ### Publishes:
 
-Stats topic: `<node_name>/stats`
+Stats topic: `/roboclaw_stats`
 
 * Motor 1 & 2 encoder values
 * Motor 1 & 2 speed values in QPPS (+/-)
 
-Diagnostic updater topic: `/diagnostics`
+<!-- Diagnostic updater topic: `/diagnostics`
 
 * Temperature 1 (C)
 * Temperature 2 (C)
 * Main Battery (V)
 * Logic Battery (V)
 * Motor 1 current (Amps)
-* Motor 2 current (Amps)
+* Motor 2 current (Amps) -->
 
 #### Subscribes to:
-SpeedCommand topic: `base_node/speed_command`
+SpeedCommand topic: `/speed_command`
 
 * M1 and M2 motor speed in QPPS
 * Max seconds before automatically stopping
 
 ## Launching
-Clone the repository
+Clone the repository, and the associated `roboclaw_interfaces` package
 
 ```
-cd $ROS_WORKSPACE/src
-git clone https://github.com/sheaffej/roboclaw_driver.git
+cd $ROS_WS/src
+git clone https://github.com/sheaffej/roboclaw_driver2.git
+git clone https://github.com/sheaffej/roboclaw_interfaces.git
 ```
 
-Build the package to create the message bindings
+Build the packages, also creating the message bindings
 
 ```
-cd $ROS_WORKSPACE
-catkin_make
+cd $ROS_WS
+rosdep install --from-paths src -y
+colcon build
 ```
 
-Launch the node
+Launch the node to use with a Roboclaw device
 
 ```
-roslaunch roboclaw_driver roboclaw_node
+ros2 launch roboclaw_driver2 roboclaw_node
+```
+
+Optionally, launch the node with the simulated Roboclaw device (a.k.a. `roboclaw_stub.py`)
+```
+ros2 launch roboclaw_driver2 roboclaw_node test_mode:=true
 ```
 
 ## Tests
-
-Unit and node-level tests are performed by `catkin_make run_tests`. These are also automatically run by the Travi-CI config.
-
-The script `tests/run_tests.sh` is a helper script to manually run the unit tests using `pytest` and the node-level tests using `rostest`. I like to run the helper script before committing changes to the repo, then Travis-CI runs them again as part of the automated build testing.
+The script `tests/run_tests.sh` is a helper script to manually run the unit tests using `pytest`. Both regular unit tests (`test/unit/`), and larger node-level tests (`test/node/`) are run using `pytest`,
 
 ### Unit tests
 The only logic that is non-trivial and therefore likely to break during refactoring is the RoboclawStub object that simulates the hardware controller for use in testing. The rest of the logic is more of a wrapper, and therefore will be tested during node-level integration testing.
@@ -87,14 +92,12 @@ pytest src/test_roboclaw_stub_unit.py
 ```
 
 ### Node-level integration tests
-Launches a test node to control the roboclaw_driver node using the simulated roboclaw controller (RoboclawStub)
+These are performed by running at test_node and the roboclaw_node in the same ROS2 context, and explicitly advancing the executor to process through the inter-node messages. These node tests use the simulated roboclaw controller (RoboclawStub)
 
 ```
-rostest roboclaw_driver stub.launch
+pytest src/test_roboclaw_node.py
 ```
 
 ## Attributions
 The `roboclaw.py` library is every so slightly modified (basic formatting and comments) from the version downloadable from the Ion Motion control site :
 [http://downloads.ionmc.com/code/roboclaw_python.zip]()
-
-The Travis-CI configuration uses ROS Industrial's `industrial_ci`: [https://github.com/ros-industrial/industrial_ci](https://github.com/ros-industrial/industrial_ci)
