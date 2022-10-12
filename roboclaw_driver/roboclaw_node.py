@@ -134,6 +134,8 @@ class RoboclawNode(Node):
         if read_success:
             msg = Stats()
 
+            msg.header.stamp = self.get_clock().now().to_msg()
+
             msg.m1_enc_val = stats.m1_enc_val
             msg.m1_enc_qpps = stats.m1_enc_qpps
 
@@ -153,7 +155,7 @@ class RoboclawNode(Node):
 
         # Stop motors if running and no commands are being received
         if (stats.m1_enc_qpps != 0 or stats.m2_enc_qpps != 0):
-            if (self.get_clock().now() - self._last_cmd_time).nanoseconds // 1e9  > self._deadman_secs:
+            if (self.get_clock().now() - self._last_cmd_time).nanoseconds // 1e9 > self._deadman_secs:
                 self.get_logger().info("Did not receive a command for over 1 sec: Stopping motors")
                 decel = max(abs(stats.m1_enc_qpps), abs(stats.m2_enc_qpps)) * 2
                 for rbc_ctl in self._rbc_ctls:
@@ -161,7 +163,6 @@ class RoboclawNode(Node):
 
                 # Publish diagnostics
                 # self._diag_updater.update()
-
 
     # def _publish_diagnostics(self, stat):
     #     """Function called by the diagnostic_updater to fetch and publish diagnostics
@@ -191,7 +192,6 @@ class RoboclawNode(Node):
     #             stat.summary(level, "[{}]: msg".format(i))
 
     #     return stat
-
 
     def _speed_cmd_callback(self, command: SpeedCommand):
         """Callback for processing messages from the SpeedCommand subscriber.

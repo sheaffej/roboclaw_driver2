@@ -48,14 +48,14 @@ def ros_context():
     rclpy.shutdown()
 
 
-@ pytest.fixture
+@pytest.fixture
 def test_node(ros_context):
     node = NodeTestingNode()
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)
     return node
 
 
-@ pytest.fixture
+@pytest.fixture
 def roboclaw_node(ros_context):
     node = RoboclawNode()
     node.get_logger().set_level(rclpy.logging.LoggingSeverity.DEBUG)

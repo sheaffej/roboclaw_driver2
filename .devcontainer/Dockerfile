@@ -21,7 +21,6 @@ RUN echo \
 'alias wsenv="source /opt/ros/${ROS_DISTRO}/setup.bash && source ${ROS_WS}/install/setup.bash"' \
 >> /root/.bashrc
 
-
 RUN mkdir -p ${ROS_WS}/src
 
 # Add this package
