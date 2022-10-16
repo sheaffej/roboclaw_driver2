@@ -201,7 +201,7 @@ def _check_stats(
             f"{label} expected/delta: {expected_val}/{delta}, actual: {actual_val}"
 
 
-def _spin_for_secs(nodes: List[Node], secs: float, timeout_sec: float = 0.1):
+def _spin_for_secs(nodes: List[Node], secs: float, timeout_sec: float = 0.001):
     start_time = time.perf_counter()
     while time.perf_counter() < start_time + secs:
         for node in nodes:
