@@ -13,9 +13,7 @@ RUN apt update \
         vim \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* 
 
-# Install Python testing packages
-COPY requirements-dev.txt .
-RUN pip install -r requirements-dev.txt
+# Python dependencies are installed by rosdep (see package.xml)
 
 RUN echo \
 'alias wsenv="source /opt/ros/${ROS_DISTRO}/setup.bash && source ${ROS_WS}/install/setup.bash"' \
