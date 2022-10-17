@@ -2,7 +2,7 @@ import threading
 from typing import Tuple
 
 # from . roboclaw import Roboclaw
-from roboclaw_driver.roboclaw import Roboclaw
+from roboclaw_driver2.roboclaw import Roboclaw
 
 ERRORS = {
     # 0x0000: "Normal",

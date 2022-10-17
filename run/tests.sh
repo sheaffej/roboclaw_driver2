@@ -11,4 +11,4 @@ echo "============================"
 echo "     Running Unit Tests     "
 echo "============================"
 echo
-/usr/bin/env python3 -m pytest -v --cache-clear --cov=roboclaw_driver ${MYDIR}/../test
+/usr/bin/env python3 -m pytest -v --cache-clear --cov=roboclaw_driver2 ${MYDIR}/../test

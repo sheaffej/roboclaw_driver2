@@ -2,8 +2,8 @@
 import unittest
 
 # from roboclaw_driver import RoboclawStub, RoboclawControl
-from roboclaw_driver.roboclaw_control import RoboclawControl
-from roboclaw_driver.roboclaw_stub import RoboclawStub
+from roboclaw_driver2.roboclaw_control import RoboclawControl
+from roboclaw_driver2.roboclaw_stub import RoboclawStub
 
 PKG = 'roboclaw_driver'
 NAME = 'roboclaw_stub_unittest'
