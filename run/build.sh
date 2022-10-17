@@ -12,6 +12,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo
 
 pushd ${ROS_WS}
+rm -Rf install build log
 if [[ ! -f ${HOME}/.apt-rosdep-updated ]]; then
     apt update
     rosdep update
@@ -29,7 +30,7 @@ echo
 
 # This also assumes that the distro's setup.bash is called
 # in entrypoint.sh via .bashrc
-bash -c "colcon build --packages-select roboclaw_interfaces"
-bash -c "colcon build --packages-select roboclaw_driver2 --symlink-install"
+bash -c "colcon build --packages-select roboclaw_interfaces roboclaw_driver2"
+# bash -c "colcon build --packages-select roboclaw_driver2 --symlink-install"
 
 echo

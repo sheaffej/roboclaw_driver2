@@ -5,9 +5,6 @@ import unittest
 from roboclaw_driver2.roboclaw_control import RoboclawControl
 from roboclaw_driver2.roboclaw_stub import RoboclawStub
 
-PKG = 'roboclaw_driver'
-NAME = 'roboclaw_stub_unittest'
-
 ACCEL = 2000
 
 
@@ -176,8 +173,3 @@ class TestRoboclawStub(unittest.TestCase):
                 round(actual_val), round(expected_val),
                 msg="{} expected: {}, actual: {}".format(label, expected_val, actual_val)
             )
-
-
-# if __name__ == "__main__":
-#     import rosunit
-#     rosunit.unitrun(PKG, NAME, TestRoboclawStub)

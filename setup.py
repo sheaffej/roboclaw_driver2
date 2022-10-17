@@ -22,7 +22,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'roboclaw_node = roboclaw_driver.roboclaw_node:main'
+            'roboclaw_node = roboclaw_driver2.roboclaw_node:main'
         ],
     },
 )

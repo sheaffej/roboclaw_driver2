@@ -22,7 +22,7 @@ def generate_launch_description():
                     [
                         PathJoinSubstitution(
                             [
-                                FindPackageShare('roboclaw_node'),
+                                FindPackageShare('roboclaw_node2'),
                                 'launch',
                                 'roboclaw_node.launch.py'
                             ]

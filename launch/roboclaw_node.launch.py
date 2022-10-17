@@ -16,7 +16,7 @@ def generate_launch_description():
     test_mode = DeclareLaunchArgument('test_mode', default_value='false')
 
     roboclaw_node = Node(
-        package='roboclaw_driver',
+        package='roboclaw_driver2',
         executable='roboclaw_node',
         name=LaunchConfiguration('name'),
         parameters=[
