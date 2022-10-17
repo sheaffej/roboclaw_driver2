@@ -254,7 +254,8 @@ def main(args=None):
         for dev in dev_names.split(','):
             node.connect(dev, baud_rate, address, test_mode)
         rclpy.spin(node)
-
+    except KeyboardInterrupt:
+        pass
     except Exception:
         node.get_logger().fatal("Unhandled exeption...printing stack trace then shutting down node")
         node.get_logger().fatal(traceback.format_exc())
