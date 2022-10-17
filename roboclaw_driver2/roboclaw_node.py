@@ -117,6 +117,7 @@ class RoboclawNode(Node):
         if not test_mode:
             roboclaw = Roboclaw(dev_name, baud_rate)
         else:
+            self.get_logger().info('Running in test mode. Connecting to stubbed Roboclaw device')
             roboclaw = RoboclawStub(dev_name, baud_rate)
         self._rbc_ctls.append(RoboclawControl(roboclaw, address))
 
