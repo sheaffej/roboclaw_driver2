@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'roboclaw_driver'
+package_name = 'roboclaw_driver2'
 
 setup(
     name=package_name,
